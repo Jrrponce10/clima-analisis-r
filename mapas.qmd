@@ -1,7 +1,6 @@
 # Capítulo 3: Mapas y Animaciones
 
-En este capítulo vamos a visualizar el cambio climático de forma
-geográfica y animada usando `tmap` y `gganimate`.
+En este capítulo vamos a visualizar el cambio climático de forma geográfica y animada usando `tmap` y `gganimate`.
 
 ## Cargar paquetes y datos
 
@@ -47,6 +46,7 @@ clima_decada
 ```{r}
 #| fig-width: 10
 #| fig-height: 5
+#| dev: "png"
 #| warning: false
 
 clima_anual <- clima |>
@@ -82,6 +82,7 @@ animate(animacion,
 ```{r}
 #| fig-width: 10
 #| fig-height: 5
+#| dev: "png"
 #| warning: false
 
 clima_decada |>
