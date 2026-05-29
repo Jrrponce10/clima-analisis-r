@@ -1,0 +1,25 @@
+project:
+  type: book
+
+book:
+  title: "Analisis del Cambio Climático con R"
+  author: "Junior Ponce"
+  date: "today"
+  chapters:
+    - index.qmd
+    - intro.qmd
+    - visualizaciones.qmd
+    - mapas.qmd
+    - proyecciones.qmd
+    - conclusiones.qmd
+
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+  pdf:
+    documentclass: scrreprt
+
+editor: visual
+

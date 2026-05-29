@@ -1,0 +1,27 @@
+# Conclusiones
+
+A lo largo de este book analizamos la evolución de la temperatura global desde 1880 hasta hoy usando datos reales de la NASA y herramientas de R.
+
+## Lo que encontramos
+
+Los datos muestran de forma clara y contundente:
+
+- La temperatura global aumentó aproximadamente **1.2°C** desde 1880
+- El calentamiento se **aceleró notablemente desde 1980**
+- Los últimos años registran las anomalías **más altas de toda la serie**
+- La tendencia proyectada indica que el calentamiento **continuará**
+
+## Lo que aprendimos en R
+
+| Capítulo | Habilidad                       | Librería                         |
+|----------|---------------------------------|----------------------------------|
+| 1        | Importar y limpiar datos reales | `readr`, `janitor`, `dplyr`      |
+| 2        | Visualizaciones estáticas       | `ggplot2`, `scales`, `patchwork` |
+| 3        | Animaciones                     | `gganimate`, `gifski`            |
+| 4        | Series de tiempo y proyecciones | `tsibble`, `fable`, `feasts`     |
+
+## Fuentes
+
+- [NASA GISS Surface Temperature Analysis](https://data.giss.nasa.gov/gistemp/)
+- [Our World in Data — Climate Change](https://ourworldindata.org/climate-change)
+- Wickham, H. (2016). *ggplot2: Elegant Graphics for Data Analysis*

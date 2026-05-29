@@ -1,0 +1,109 @@
+# Capítulo 4: Series de Tiempo y Proyecciones
+
+En este capítulo vamos a analizar la tendencia de la temperatura global
+usando series de tiempo y proyectar cómo podría evolucionar en los
+próximos 20 años.
+
+## Cargar paquetes y datos
+
+```{r}
+#| message: false
+#| warning: false
+library(tidyverse)
+library(lubridate)
+library(janitor)
+library(tsibble)
+library(fable)
+library(feasts)
+
+clima_raw <- read_csv("GLB.Ts+dSST.csv", skip = 1, na = "***")
+
+clima <- clima_raw |>
+  clean_names() |>
+  select(year, jan:dec) |>
+  pivot_longer(cols = jan:dec,
+               names_to  = "mes",
+               values_to = "anomalia") |>
+  mutate(
+    mes   = match(mes, c("jan","feb","mar","apr",
+                         "may","jun","jul","aug",
+                         "sep","oct","nov","dec")),
+    fecha = make_date(year, mes, 1)
+  ) |>
+  drop_na(anomalia)
+```
+
+## Convertir a serie de tiempo
+
+```{r}
+clima_ts <- clima |>
+  mutate(mes_año = yearmonth(fecha)) |>
+  as_tsibble(index = mes_año)
+
+clima_ts
+```
+
+## Explorar la serie de tiempo
+
+```{r}
+#| fig-width: 10
+#| fig-height: 4
+#| warning: false
+
+clima_ts |>
+  autoplot(anomalia) +
+  labs(
+    title   = "Anomalía de temperatura global mensual",
+    x       = "Fecha",
+    y       = "Anomalía (°C)",
+    caption = "Fuente: NASA GISS"
+  ) +
+  theme_minimal()
+```
+
+## Descomposición de la serie
+
+```{r}
+#| fig-width: 10
+#| fig-height: 6
+#| warning: false
+
+clima_ts |>
+  model(STL(anomalia)) |>
+  components() |>
+  autoplot() +
+  labs(
+    title   = "Descomposición STL de la anomalía",
+    caption = "Tendencia + Estacionalidad + Residuo"
+  ) +
+  theme_minimal()
+```
+
+## Proyección a 20 años
+
+```{r}
+#| fig-width: 10
+#| fig-height: 5
+#| warning: false
+
+modelo <- clima_ts |>
+  model(
+    arima = ARIMA(anomalia),
+    naive = NAIVE(anomalia)
+  )
+
+proyeccion <- modelo |>
+  forecast(h = "20 years")
+
+proyeccion |>
+  filter(.model == "arima") |>
+  autoplot(clima_ts) +
+  labs(
+    title    = "Proyección de anomalía de temperatura (próximos 20 años)",
+    subtitle = "Modelo ARIMA · Banda sombreada = intervalo de confianza",
+    x        = "Fecha",
+    y        = "Anomalía (°C)",
+    caption  = "Fuente: NASA GISS · Proyección con fable"
+  ) +
+  theme_minimal()
+```

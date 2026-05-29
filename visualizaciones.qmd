@@ -1,0 +1,111 @@
+# Capítulo 2: Visualizaciones con ggplot2
+
+Ahora que tenemos los datos limpios, vamos a construir visualizaciones que muestren cómo ha cambiado la temperatura global desde 1880.
+
+## Cargar paquetes y datos
+
+```{r}
+#| message: false
+#| warning: false
+library(tidyverse)
+library(lubridate)
+library(janitor)
+library(scales)
+library(patchwork)
+library(ggthemes)
+
+clima_raw <- read_csv("GLB.Ts+dSST.csv", skip = 1, na = "***")
+
+clima <- clima_raw |>
+  clean_names() |>
+  select(year, jan:dec) |>
+  pivot_longer(cols = jan:dec,
+               names_to  = "mes",
+               values_to = "anomalia") |>
+  mutate(
+    mes   = match(mes, c("jan","feb","mar","apr",
+                         "may","jun","jul","aug",
+                         "sep","oct","nov","dec")),
+    fecha = make_date(year, mes, 1)
+  ) |>
+  drop_na(anomalia)
+```
+
+## Gráfico 1 — Serie de tiempo completa
+
+```{r}
+#| fig-cap: "Anomalías de temperatura global 1880–2024"
+#| fig-width: 10
+#| fig-height: 5
+
+clima |>
+  group_by(year) |>
+  summarise(anomalia_anual = mean(anomalia)) |>
+  ggplot(aes(x = year, y = anomalia_anual)) +
+  geom_line(color = "#2196F3", linewidth = 0.7) +
+  geom_smooth(method = "loess", color = "#E53935",
+              se = FALSE, linewidth = 1.2) +
+  geom_hline(yintercept = 0, linetype = "dashed",
+             color = "gray50") +
+  labs(
+    title    = "Anomalía de temperatura global (1880–2024)",
+    subtitle = "Línea azul: dato anual · Línea roja: tendencia",
+    x        = "Año",
+    y        = "Anomalía (°C)",
+    caption  = "Fuente: NASA GISS Surface Temperature Analysis"
+  ) +
+  theme_minimal()
+```
+
+## Gráfico 2 — Mapa de calor por mes y año
+
+```{r}
+#| fig-cap: "Mapa de calor de anomalías por mes"
+#| fig-width: 12
+#| fig-height: 6
+
+clima |>
+  filter(year >= 1950) |>
+  ggplot(aes(x = year, y = factor(mes), fill = anomalia)) +
+  geom_tile() +
+  scale_fill_gradient2(
+    low      = "#2166AC",
+    mid      = "white",
+    high     = "#D6604D",
+    midpoint = 0
+  ) +
+  scale_y_discrete(labels = c("Ene","Feb","Mar","Abr","May",
+                               "Jun","Jul","Ago","Sep","Oct",
+                               "Nov","Dic")) +
+  labs(
+    title   = "Anomalías de temperatura por mes (1950–2024)",
+    x       = "Año",
+    y       = NULL,
+    fill    = "Anomalía (°C)",
+    caption = "Fuente: NASA GISS"
+  ) +
+  theme_minimal()
+```
+
+## Gráfico 3 — Comparación de décadas
+
+```{r}
+#| fig-cap: "Distribución de anomalías por década"
+#| fig-width: 10
+#| fig-height: 5
+
+clima |>
+  mutate(decada = paste0(floor(year / 10) * 10, "s")) |>
+  ggplot(aes(x = anomalia, fill = decada)) +
+  geom_density(alpha = 0.5) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "gray40") +
+  labs(
+    title    = "Distribución de anomalías por década",
+    subtitle = "Cada curva representa una década",
+    x        = "Anomalía (°C)",
+    y        = "Densidad",
+    fill     = "Década",
+    caption  = "Fuente: NASA GISS"
+  ) +
+  theme_minimal()
+```

@@ -1,0 +1,108 @@
+# Capítulo 3: Mapas y Animaciones
+
+En este capítulo vamos a visualizar el cambio climático de forma
+geográfica y animada usando `tmap` y `gganimate`.
+
+## Cargar paquetes y datos
+
+```{r}
+#| message: false
+#| warning: false
+library(tidyverse)
+library(lubridate)
+library(janitor)
+library(gganimate)
+library(gifski)
+
+clima_raw <- read_csv("GLB.Ts+dSST.csv", skip = 1, na = "***")
+
+clima <- clima_raw |>
+  clean_names() |>
+  select(year, jan:dec) |>
+  pivot_longer(cols = jan:dec,
+               names_to  = "mes",
+               values_to = "anomalia") |>
+  mutate(
+    mes   = match(mes, c("jan","feb","mar","apr",
+                         "may","jun","jul","aug",
+                         "sep","oct","nov","dec")),
+    fecha = make_date(year, mes, 1)
+  ) |>
+  drop_na(anomalia)
+```
+
+## Anomalía promedio por década
+
+```{r}
+clima_decada <- clima |>
+  mutate(decada = floor(year / 10) * 10) |>
+  group_by(decada) |>
+  summarise(anomalia_media = mean(anomalia))
+
+clima_decada
+```
+
+## Animación — evolución de la anomalía anual
+
+```{r}
+#| fig-width: 10
+#| fig-height: 5
+#| warning: false
+
+clima_anual <- clima |>
+  group_by(year) |>
+  summarise(anomalia_anual = mean(anomalia))
+
+animacion <- clima_anual |>
+  ggplot(aes(x = year, y = anomalia_anual)) +
+  geom_line(color = "#2196F3", linewidth = 0.8) +
+  geom_point(color = "#E53935", size = 2) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
+  labs(
+    title   = "Anomalía de temperatura global — Año: {frame_along}",
+    x       = "Año",
+    y       = "Anomalía (°C)",
+    caption = "Fuente: NASA GISS"
+  ) +
+  theme_minimal() +
+  transition_reveal(year)
+
+animate(animacion,
+        nframes  = 100,
+        fps      = 10,
+        width    = 800,
+        height   = 400,
+        units    = "px",
+        res      = 96,
+        renderer = gifski_renderer())
+```
+
+## Gráfico de barras por década
+
+```{r}
+#| fig-width: 10
+#| fig-height: 5
+#| warning: false
+
+clima_decada |>
+  ggplot(aes(x = factor(decada),
+             y = anomalia_media,
+             fill = anomalia_media)) +
+  geom_col() +
+  scale_fill_gradient2(
+    low      = "#2166AC",
+    mid      = "white",
+    high     = "#D6604D",
+    midpoint = 0
+  ) +
+  labs(
+    title    = "Anomalía promedio por década",
+    subtitle = "El calentamiento se acelera desde 1980",
+    x        = "Década",
+    y        = "Anomalía media (°C)",
+    fill     = "Anomalía",
+    caption  = "Fuente: NASA GISS"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+```

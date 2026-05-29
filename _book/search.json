@@ -1,0 +1,272 @@
+[
+  {
+    "objectID": "intro.html",
+    "href": "intro.html",
+    "title": "1  Capítulo 1: Datos de temperatura global (NASA)",
+    "section": "",
+    "text": "1.1 Cargar paquetes\nEn este capítulo vamos a descargar y explorar el dataset GISTEMP de la NASA, que registra las anomalías de temperatura global desde 1880.\nlibrary(tidyverse)\nlibrary(lubridate)\nlibrary(janitor)\nlibrary(skimr)",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Capítulo 1: Datos de temperatura global (NASA)</span>"
+    ]
+  },
+  {
+    "objectID": "intro.html#cargar-paquetes",
+    "href": "intro.html#cargar-paquetes",
+    "title": "1  Introduction",
+    "section": "2.1 Cargar paquetes",
+    "text": "2.1 Cargar paquetes\n\nlibrary(tidyverse)\nlibrary(lubridate)\nlibrary(janitor)\nlibrary(skimr)",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Introduction</span>"
+    ]
+  },
+  {
+    "objectID": "intro.html#descargar-los-datos",
+    "href": "intro.html#descargar-los-datos",
+    "title": "1  Capítulo 1: Datos de temperatura global (NASA)",
+    "section": "1.2 Descargar los datos",
+    "text": "1.2 Descargar los datos\n\nurl &lt;- \"https://data.giss.nasa.gov/gistemp/tabledata_v4/GLB.Ts+dSST.csv\"\n\nclima_raw &lt;- read_csv(\"GLB.Ts+dSST.csv\", skip = 1, na = \"***\")\n\nglimpse(clima_raw)\n\nRows: 147\nColumns: 19\n$ Year  &lt;dbl&gt; 1880, 1881, 1882, 1883, 1884, 1885, 1886, 1887, 1888, 1889, 1890…\n$ Jan   &lt;dbl&gt; -0.19, -0.20, 0.16, -0.29, -0.13, -0.59, -0.44, -0.72, -0.35, -0…\n$ Feb   &lt;dbl&gt; -0.25, -0.16, 0.14, -0.36, -0.08, -0.34, -0.51, -0.57, -0.37, 0.…\n$ Mar   &lt;dbl&gt; -0.10, 0.02, 0.04, -0.12, -0.36, -0.27, -0.43, -0.36, -0.42, 0.0…\n$ Apr   &lt;dbl&gt; -0.17, 0.04, -0.16, -0.18, -0.40, -0.42, -0.28, -0.35, -0.21, 0.…\n$ May   &lt;dbl&gt; -0.10, 0.06, -0.14, -0.17, -0.34, -0.46, -0.25, -0.31, -0.22, -0…\n$ Jun   &lt;dbl&gt; -0.21, -0.19, -0.22, -0.07, -0.35, -0.44, -0.35, -0.25, -0.18, -…\n$ Jul   &lt;dbl&gt; -0.19, 0.01, -0.16, -0.07, -0.30, -0.34, -0.19, -0.26, -0.11, -0…\n$ Aug   &lt;dbl&gt; -0.11, -0.04, -0.08, -0.14, -0.28, -0.32, -0.31, -0.36, -0.16, -…\n$ Sep   &lt;dbl&gt; -0.15, -0.15, -0.15, -0.22, -0.27, -0.28, -0.24, -0.26, -0.12, -…\n$ Oct   &lt;dbl&gt; -0.24, -0.22, -0.23, -0.11, -0.25, -0.23, -0.28, -0.36, 0.01, -0…\n$ Nov   &lt;dbl&gt; -0.22, -0.19, -0.17, -0.24, -0.34, -0.24, -0.28, -0.26, 0.02, -0…\n$ Dec   &lt;dbl&gt; -0.19, -0.07, -0.36, -0.11, -0.31, -0.10, -0.26, -0.33, -0.05, -…\n$ `J-D` &lt;dbl&gt; -0.18, -0.09, -0.11, -0.17, -0.28, -0.34, -0.32, -0.37, -0.18, -…\n$ `D-N` &lt;dbl&gt; NA, -0.10, -0.09, -0.20, -0.27, -0.35, -0.31, -0.36, -0.20, -0.0…\n$ DJF   &lt;dbl&gt; NA, -0.18, 0.08, -0.34, -0.11, -0.41, -0.35, -0.52, -0.35, 0.00,…\n$ MAM   &lt;dbl&gt; -0.12, 0.04, -0.08, -0.16, -0.36, -0.38, -0.32, -0.34, -0.28, 0.…\n$ JJA   &lt;dbl&gt; -0.17, -0.07, -0.15, -0.09, -0.31, -0.37, -0.28, -0.29, -0.15, -…\n$ SON   &lt;dbl&gt; -0.20, -0.18, -0.18, -0.19, -0.28, -0.25, -0.27, -0.29, -0.03, -…",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Capítulo 1: Datos de temperatura global (NASA)</span>"
+    ]
+  },
+  {
+    "objectID": "intro.html#limpiar-los-datos",
+    "href": "intro.html#limpiar-los-datos",
+    "title": "1  Capítulo 1: Datos de temperatura global (NASA)",
+    "section": "1.3 Limpiar los datos",
+    "text": "1.3 Limpiar los datos\n\nclima &lt;- clima_raw |&gt;\n  clean_names() |&gt;\n  select(year, jan:dec) |&gt;\n  pivot_longer(cols = jan:dec,\n               names_to  = \"mes\",\n               values_to = \"anomalia\") |&gt;\n  mutate(\n    mes   = match(mes, c(\"jan\",\"feb\",\"mar\",\"apr\",\n                         \"may\",\"jun\",\"jul\",\"aug\",\n                         \"sep\",\"oct\",\"nov\",\"dec\")),\n    fecha = make_date(year, mes, 1)\n  ) |&gt;\n  drop_na(anomalia)\n\nglimpse(clima)\n\nRows: 1,756\nColumns: 4\n$ year     &lt;dbl&gt; 1880, 1880, 1880, 1880, 1880, 1880, 1880, 1880, 1880, 1880, 1…\n$ mes      &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6, 7, 8…\n$ anomalia &lt;dbl&gt; -0.19, -0.25, -0.10, -0.17, -0.10, -0.21, -0.19, -0.11, -0.15…\n$ fecha    &lt;date&gt; 1880-01-01, 1880-02-01, 1880-03-01, 1880-04-01, 1880-05-01, …",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Capítulo 1: Datos de temperatura global (NASA)</span>"
+    ]
+  },
+  {
+    "objectID": "intro.html#primer-vistazo",
+    "href": "intro.html#primer-vistazo",
+    "title": "1  Capítulo 1: Datos de temperatura global (NASA)",
+    "section": "1.4 Primer vistazo",
+    "text": "1.4 Primer vistazo\n\nskim(clima)\n\n\nData summary\n\n\nName\nclima\n\n\nNumber of rows\n1756\n\n\nNumber of columns\n4\n\n\n_______________________\n\n\n\nColumn type frequency:\n\n\n\nDate\n1\n\n\nnumeric\n3\n\n\n________________________\n\n\n\nGroup variables\nNone\n\n\n\nVariable type: Date\n\n\n\n\n\n\n\n\n\n\n\n\nskim_variable\nn_missing\ncomplete_rate\nmin\nmax\nmedian\nn_unique\n\n\n\n\nfecha\n0\n1\n1880-01-01\n2026-04-01\n1953-02-15\n1756\n\n\n\nVariable type: numeric\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nskim_variable\nn_missing\ncomplete_rate\nmean\nsd\np0\np25\np50\np75\np100\nhist\n\n\n\n\nyear\n0\n1\n1952.67\n42.26\n1880.00\n1916.00\n1953.00\n1989.00\n2026.00\n▇▇▇▇▇\n\n\nmes\n0\n1\n6.49\n3.45\n1.00\n3.00\n6.00\n9.00\n12.00\n▇▅▅▅▇\n\n\nanomalia\n0\n1\n0.08\n0.42\n-0.82\n-0.22\n-0.03\n0.32\n1.48\n▂▇▃▂▁",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Capítulo 1: Datos de temperatura global (NASA)</span>"
+    ]
+  },
+  {
+    "objectID": "summary.html",
+    "href": "summary.html",
+    "title": "2  Capítulo 2: Visualizaciones con ggplot2",
+    "section": "",
+    "text": "2.1 Cargar paquetes y datos\nAhora que tenemos los datos limpios, vamos a construir visualizaciones que muestren cómo ha cambiado la temperatura global desde 1880.\nlibrary(tidyverse)\nlibrary(lubridate)\nlibrary(janitor)\nlibrary(scales)\nlibrary(patchwork)\nlibrary(ggthemes)\n\nclima_raw &lt;- read_csv(\"GLB.Ts+dSST.csv\", skip = 1, na = \"***\")\n\nclima &lt;- clima_raw |&gt;\n  clean_names() |&gt;\n  select(year, jan:dec) |&gt;\n  pivot_longer(cols = jan:dec,\n               names_to  = \"mes\",\n               values_to = \"anomalia\") |&gt;\n  mutate(\n    mes   = match(mes, c(\"jan\",\"feb\",\"mar\",\"apr\",\n                         \"may\",\"jun\",\"jul\",\"aug\",\n                         \"sep\",\"oct\",\"nov\",\"dec\")),\n    fecha = make_date(year, mes, 1)\n  ) |&gt;\n  drop_na(anomalia)",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Capítulo 2: Visualizaciones con ggplot2</span>"
+    ]
+  },
+  {
+    "objectID": "summary.html#gráfico-1-serie-de-tiempo-completa",
+    "href": "summary.html#gráfico-1-serie-de-tiempo-completa",
+    "title": "2  Capítulo 2: Visualizaciones con ggplot2",
+    "section": "2.2 Gráfico 1 — Serie de tiempo completa",
+    "text": "2.2 Gráfico 1 — Serie de tiempo completa\n\nclima |&gt;\n  group_by(year) |&gt;\n  summarise(anomalia_anual = mean(anomalia)) |&gt;\n  ggplot(aes(x = year, y = anomalia_anual)) +\n  geom_line(color = \"#2196F3\", linewidth = 0.7) +\n  geom_smooth(method = \"loess\", color = \"#E53935\",\n              se = FALSE, linewidth = 1.2) +\n  geom_hline(yintercept = 0, linetype = \"dashed\",\n             color = \"gray50\") +\n  labs(\n    title    = \"Anomalía de temperatura global (1880–2024)\",\n    subtitle = \"Línea azul: dato anual · Línea roja: tendencia\",\n    x        = \"Año\",\n    y        = \"Anomalía (°C)\",\n    caption  = \"Fuente: NASA GISS Surface Temperature Analysis\"\n  ) +\n  theme_minimal()\n\n`geom_smooth()` using formula = 'y ~ x'\n\n\n\n\n\nAnomalías de temperatura global 1880–2024",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Capítulo 2: Visualizaciones con ggplot2</span>"
+    ]
+  },
+  {
+    "objectID": "summary.html#gráfico-2-mapa-de-calor-por-mes-y-año",
+    "href": "summary.html#gráfico-2-mapa-de-calor-por-mes-y-año",
+    "title": "2  Capítulo 2: Visualizaciones con ggplot2",
+    "section": "2.3 Gráfico 2 — Mapa de calor por mes y año",
+    "text": "2.3 Gráfico 2 — Mapa de calor por mes y año\n\nclima |&gt;\n  filter(year &gt;= 1950) |&gt;\n  ggplot(aes(x = year, y = factor(mes), fill = anomalia)) +\n  geom_tile() +\n  scale_fill_gradient2(\n    low      = \"#2166AC\",\n    mid      = \"white\",\n    high     = \"#D6604D\",\n    midpoint = 0\n  ) +\n  scale_y_discrete(labels = c(\"Ene\",\"Feb\",\"Mar\",\"Abr\",\"May\",\n                               \"Jun\",\"Jul\",\"Ago\",\"Sep\",\"Oct\",\n                               \"Nov\",\"Dic\")) +\n  labs(\n    title   = \"Anomalías de temperatura por mes (1950–2024)\",\n    x       = \"Año\",\n    y       = NULL,\n    fill    = \"Anomalía (°C)\",\n    caption = \"Fuente: NASA GISS\"\n  ) +\n  theme_minimal()\n\n\n\n\nMapa de calor de anomalías por mes",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Capítulo 2: Visualizaciones con ggplot2</span>"
+    ]
+  },
+  {
+    "objectID": "summary.html#gráfico-3-comparación-de-décadas",
+    "href": "summary.html#gráfico-3-comparación-de-décadas",
+    "title": "2  Capítulo 2: Visualizaciones con ggplot2",
+    "section": "2.4 Gráfico 3 — Comparación de décadas",
+    "text": "2.4 Gráfico 3 — Comparación de décadas\n\nclima |&gt;\n  mutate(decada = paste0(floor(year / 10) * 10, \"s\")) |&gt;\n  ggplot(aes(x = anomalia, fill = decada)) +\n  geom_density(alpha = 0.5) +\n  geom_vline(xintercept = 0, linetype = \"dashed\", color = \"gray40\") +\n  labs(\n    title    = \"Distribución de anomalías por década\",\n    subtitle = \"Cada curva representa una década\",\n    x        = \"Anomalía (°C)\",\n    y        = \"Densidad\",\n    fill     = \"Década\",\n    caption  = \"Fuente: NASA GISS\"\n  ) +\n  theme_minimal()\n\n\n\n\nDistribución de anomalías por década",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Capítulo 2: Visualizaciones con ggplot2</span>"
+    ]
+  },
+  {
+    "objectID": "mapas.html",
+    "href": "mapas.html",
+    "title": "3  Capítulo 3: Mapas y Animaciones",
+    "section": "",
+    "text": "3.1 Cargar paquetes y datos\nEn este capítulo vamos a visualizar el cambio climático de forma geográfica y animada usando tmap y gganimate.\nlibrary(tidyverse)\nlibrary(lubridate)\nlibrary(janitor)\nlibrary(gganimate)\nlibrary(gifski)\n\nclima_raw &lt;- read_csv(\"GLB.Ts+dSST.csv\", skip = 1, na = \"***\")\n\nclima &lt;- clima_raw |&gt;\n  clean_names() |&gt;\n  select(year, jan:dec) |&gt;\n  pivot_longer(cols = jan:dec,\n               names_to  = \"mes\",\n               values_to = \"anomalia\") |&gt;\n  mutate(\n    mes   = match(mes, c(\"jan\",\"feb\",\"mar\",\"apr\",\n                         \"may\",\"jun\",\"jul\",\"aug\",\n                         \"sep\",\"oct\",\"nov\",\"dec\")),\n    fecha = make_date(year, mes, 1)\n  ) |&gt;\n  drop_na(anomalia)",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Capítulo 3: Mapas y Animaciones</span>"
+    ]
+  },
+  {
+    "objectID": "mapas.html#anomalía-promedio-por-década",
+    "href": "mapas.html#anomalía-promedio-por-década",
+    "title": "3  Capítulo 3: Mapas y Animaciones",
+    "section": "3.2 Anomalía promedio por década",
+    "text": "3.2 Anomalía promedio por década\n\nclima_decada &lt;- clima |&gt;\n  mutate(decada = floor(year / 10) * 10) |&gt;\n  group_by(decada) |&gt;\n  summarise(anomalia_media = mean(anomalia))\n\nclima_decada\n\n# A tibble: 15 × 2\n   decada anomalia_media\n    &lt;dbl&gt;          &lt;dbl&gt;\n 1   1880        -0.214 \n 2   1890        -0.239 \n 3   1900        -0.316 \n 4   1910        -0.330 \n 5   1920        -0.239 \n 6   1930        -0.124 \n 7   1940         0.0422\n 8   1950        -0.048 \n 9   1960        -0.0297\n10   1970         0.0345\n11   1980         0.246 \n12   1990         0.385 \n13   2000         0.587 \n14   2010         0.805 \n15   2020         1.07",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Capítulo 3: Mapas y Animaciones</span>"
+    ]
+  },
+  {
+    "objectID": "mapas.html#animación-evolución-de-la-anomalía-anual",
+    "href": "mapas.html#animación-evolución-de-la-anomalía-anual",
+    "title": "3  Capítulo 3: Mapas y Animaciones",
+    "section": "3.3 Animación — evolución de la anomalía anual",
+    "text": "3.3 Animación — evolución de la anomalía anual\n\nclima_anual &lt;- clima |&gt;\n  group_by(year) |&gt;\n  summarise(anomalia_anual = mean(anomalia))\n\nanimacion &lt;- clima_anual |&gt;\n  ggplot(aes(x = year, y = anomalia_anual)) +\n  geom_line(color = \"#2196F3\", linewidth = 0.8) +\n  geom_point(color = \"#E53935\", size = 2) +\n  geom_hline(yintercept = 0, linetype = \"dashed\", color = \"gray50\") +\n  labs(\n    title   = \"Anomalía de temperatura global — Año: {frame_along}\",\n    x       = \"Año\",\n    y       = \"Anomalía (°C)\",\n    caption = \"Fuente: NASA GISS\"\n  ) +\n  theme_minimal() +\n  transition_reveal(year)\n\nanimate(animacion,\n        nframes  = 100,\n        fps      = 10,\n        width    = 800,\n        height   = 400,\n        units    = \"px\",\n        res      = 96,\n        renderer = gifski_renderer())",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Capítulo 3: Mapas y Animaciones</span>"
+    ]
+  },
+  {
+    "objectID": "mapas.html#gráfico-de-barras-por-década",
+    "href": "mapas.html#gráfico-de-barras-por-década",
+    "title": "3  Capítulo 3: Mapas y Animaciones",
+    "section": "3.4 Gráfico de barras por década",
+    "text": "3.4 Gráfico de barras por década\n\nclima_decada |&gt;\n  ggplot(aes(x = factor(decada),\n             y = anomalia_media,\n             fill = anomalia_media)) +\n  geom_col() +\n  scale_fill_gradient2(\n    low      = \"#2166AC\",\n    mid      = \"white\",\n    high     = \"#D6604D\",\n    midpoint = 0\n  ) +\n  labs(\n    title    = \"Anomalía promedio por década\",\n    subtitle = \"El calentamiento se acelera desde 1980\",\n    x        = \"Década\",\n    y        = \"Anomalía media (°C)\",\n    fill     = \"Anomalía\",\n    caption  = \"Fuente: NASA GISS\"\n  ) +\n  theme_minimal() +\n  theme(legend.position = \"none\")",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>Capítulo 3: Mapas y Animaciones</span>"
+    ]
+  },
+  {
+    "objectID": "proyecciones.html",
+    "href": "proyecciones.html",
+    "title": "4  Capítulo 4: Series de Tiempo y Proyecciones",
+    "section": "",
+    "text": "4.1 Cargar paquetes y datos\nEn este capítulo vamos a analizar la tendencia de la temperatura global usando series de tiempo y proyectar cómo podría evolucionar en los próximos 20 años.\nlibrary(tidyverse)\nlibrary(lubridate)\nlibrary(janitor)\nlibrary(tsibble)\nlibrary(fable)\nlibrary(feasts)\n\nclima_raw &lt;- read_csv(\"GLB.Ts+dSST.csv\", skip = 1, na = \"***\")\n\nclima &lt;- clima_raw |&gt;\n  clean_names() |&gt;\n  select(year, jan:dec) |&gt;\n  pivot_longer(cols = jan:dec,\n               names_to  = \"mes\",\n               values_to = \"anomalia\") |&gt;\n  mutate(\n    mes   = match(mes, c(\"jan\",\"feb\",\"mar\",\"apr\",\n                         \"may\",\"jun\",\"jul\",\"aug\",\n                         \"sep\",\"oct\",\"nov\",\"dec\")),\n    fecha = make_date(year, mes, 1)\n  ) |&gt;\n  drop_na(anomalia)",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Capítulo 4: Series de Tiempo y Proyecciones</span>"
+    ]
+  },
+  {
+    "objectID": "proyecciones.html#convertir-a-serie-de-tiempo",
+    "href": "proyecciones.html#convertir-a-serie-de-tiempo",
+    "title": "4  Capítulo 4: Series de Tiempo y Proyecciones",
+    "section": "4.2 Convertir a serie de tiempo",
+    "text": "4.2 Convertir a serie de tiempo\n\nclima_ts &lt;- clima |&gt;\n  mutate(mes_año = yearmonth(fecha)) |&gt;\n  as_tsibble(index = mes_año)\n\nclima_ts\n\n# A tsibble: 1,756 x 5 [1M]\n    year   mes anomalia fecha        mes_año\n   &lt;dbl&gt; &lt;int&gt;    &lt;dbl&gt; &lt;date&gt;         &lt;mth&gt;\n 1  1880     1    -0.19 1880-01-01 1880 ene.\n 2  1880     2    -0.25 1880-02-01 1880 feb.\n 3  1880     3    -0.1  1880-03-01 1880 mar.\n 4  1880     4    -0.17 1880-04-01 1880 abr.\n 5  1880     5    -0.1  1880-05-01 1880 may.\n 6  1880     6    -0.21 1880-06-01 1880 jun.\n 7  1880     7    -0.19 1880-07-01 1880 jul.\n 8  1880     8    -0.11 1880-08-01 1880 ago.\n 9  1880     9    -0.15 1880-09-01 1880 sep.\n10  1880    10    -0.24 1880-10-01 1880 oct.\n# ℹ 1,746 more rows",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Capítulo 4: Series de Tiempo y Proyecciones</span>"
+    ]
+  },
+  {
+    "objectID": "proyecciones.html#explorar-la-serie-de-tiempo",
+    "href": "proyecciones.html#explorar-la-serie-de-tiempo",
+    "title": "4  Capítulo 4: Series de Tiempo y Proyecciones",
+    "section": "4.3 Explorar la serie de tiempo",
+    "text": "4.3 Explorar la serie de tiempo\n\nclima_ts |&gt;\n  autoplot(anomalia) +\n  labs(\n    title   = \"Anomalía de temperatura global mensual\",\n    x       = \"Fecha\",\n    y       = \"Anomalía (°C)\",\n    caption = \"Fuente: NASA GISS\"\n  ) +\n  theme_minimal()",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Capítulo 4: Series de Tiempo y Proyecciones</span>"
+    ]
+  },
+  {
+    "objectID": "proyecciones.html#descomposición-de-la-serie",
+    "href": "proyecciones.html#descomposición-de-la-serie",
+    "title": "4  Capítulo 4: Series de Tiempo y Proyecciones",
+    "section": "4.4 Descomposición de la serie",
+    "text": "4.4 Descomposición de la serie\n\nclima_ts |&gt;\n  model(STL(anomalia)) |&gt;\n  components() |&gt;\n  autoplot() +\n  labs(\n    title   = \"Descomposición STL de la anomalía\",\n    caption = \"Tendencia + Estacionalidad + Residuo\"\n  ) +\n  theme_minimal()",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Capítulo 4: Series de Tiempo y Proyecciones</span>"
+    ]
+  },
+  {
+    "objectID": "proyecciones.html#proyección-a-20-años",
+    "href": "proyecciones.html#proyección-a-20-años",
+    "title": "4  Capítulo 4: Series de Tiempo y Proyecciones",
+    "section": "4.5 Proyección a 20 años",
+    "text": "4.5 Proyección a 20 años\n\nmodelo &lt;- clima_ts |&gt;\n  model(\n    arima = ARIMA(anomalia),\n    naive = NAIVE(anomalia)\n  )\n\nproyeccion &lt;- modelo |&gt;\n  forecast(h = \"20 years\")\n\nproyeccion |&gt;\n  filter(.model == \"arima\") |&gt;\n  autoplot(clima_ts) +\n  labs(\n    title    = \"Proyección de anomalía de temperatura (próximos 20 años)\",\n    subtitle = \"Modelo ARIMA · Banda sombreada = intervalo de confianza\",\n    x        = \"Fecha\",\n    y        = \"Anomalía (°C)\",\n    caption  = \"Fuente: NASA GISS · Proyección con fable\"\n  ) +\n  theme_minimal()",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>Capítulo 4: Series de Tiempo y Proyecciones</span>"
+    ]
+  },
+  {
+    "objectID": "conclusiones.html",
+    "href": "conclusiones.html",
+    "title": "5  Conclusiones",
+    "section": "",
+    "text": "5.1 Lo que encontramos\nA lo largo de este book analizamos la evolución de la temperatura global desde 1880 hasta hoy usando datos reales de la NASA y herramientas de R.\nLos datos muestran de forma clara y contundente:",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Conclusiones</span>"
+    ]
+  },
+  {
+    "objectID": "conclusiones.html#lo-que-encontramos",
+    "href": "conclusiones.html#lo-que-encontramos",
+    "title": "5  Conclusiones",
+    "section": "",
+    "text": "La temperatura global aumentó aproximadamente 1.2°C desde 1880\nEl calentamiento se aceleró notablemente desde 1980\nLos últimos años registran las anomalías más altas de toda la serie\nLa tendencia proyectada indica que el calentamiento continuará",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Conclusiones</span>"
+    ]
+  },
+  {
+    "objectID": "conclusiones.html#lo-que-aprendimos-en-r",
+    "href": "conclusiones.html#lo-que-aprendimos-en-r",
+    "title": "5  Conclusiones",
+    "section": "5.2 Lo que aprendimos en R",
+    "text": "5.2 Lo que aprendimos en R\n\n\n\n\n\n\n\n\nCapítulo\nHabilidad\nLibrería\n\n\n\n\n1\nImportar y limpiar datos reales\nreadr, janitor, dplyr\n\n\n2\nVisualizaciones estáticas\nggplot2, scales, patchwork\n\n\n3\nAnimaciones\ngganimate, gifski\n\n\n4\nSeries de tiempo y proyecciones\ntsibble, fable, feasts",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Conclusiones</span>"
+    ]
+  },
+  {
+    "objectID": "conclusiones.html#fuentes",
+    "href": "conclusiones.html#fuentes",
+    "title": "5  Conclusiones",
+    "section": "5.3 Fuentes",
+    "text": "5.3 Fuentes\n\nNASA GISS Surface Temperature Analysis\nOur World in Data — Climate Change\nWickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>Conclusiones</span>"
+    ]
+  },
+  {
+    "objectID": "visualizaciones.html",
+    "href": "visualizaciones.html",
+    "title": "2  Capítulo 2: Visualizaciones con ggplot2",
+    "section": "",
+    "text": "2.1 Cargar paquetes y datos\nAhora que tenemos los datos limpios, vamos a construir visualizaciones que muestren cómo ha cambiado la temperatura global desde 1880.\nlibrary(tidyverse)\nlibrary(lubridate)\nlibrary(janitor)\nlibrary(scales)\nlibrary(patchwork)\nlibrary(ggthemes)\n\nclima_raw &lt;- read_csv(\"GLB.Ts+dSST.csv\", skip = 1, na = \"***\")\n\nclima &lt;- clima_raw |&gt;\n  clean_names() |&gt;\n  select(year, jan:dec) |&gt;\n  pivot_longer(cols = jan:dec,\n               names_to  = \"mes\",\n               values_to = \"anomalia\") |&gt;\n  mutate(\n    mes   = match(mes, c(\"jan\",\"feb\",\"mar\",\"apr\",\n                         \"may\",\"jun\",\"jul\",\"aug\",\n                         \"sep\",\"oct\",\"nov\",\"dec\")),\n    fecha = make_date(year, mes, 1)\n  ) |&gt;\n  drop_na(anomalia)",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Capítulo 2: Visualizaciones con ggplot2</span>"
+    ]
+  },
+  {
+    "objectID": "visualizaciones.html#gráfico-1-serie-de-tiempo-completa",
+    "href": "visualizaciones.html#gráfico-1-serie-de-tiempo-completa",
+    "title": "2  Capítulo 2: Visualizaciones con ggplot2",
+    "section": "2.2 Gráfico 1 — Serie de tiempo completa",
+    "text": "2.2 Gráfico 1 — Serie de tiempo completa\n\nclima |&gt;\n  group_by(year) |&gt;\n  summarise(anomalia_anual = mean(anomalia)) |&gt;\n  ggplot(aes(x = year, y = anomalia_anual)) +\n  geom_line(color = \"#2196F3\", linewidth = 0.7) +\n  geom_smooth(method = \"loess\", color = \"#E53935\",\n              se = FALSE, linewidth = 1.2) +\n  geom_hline(yintercept = 0, linetype = \"dashed\",\n             color = \"gray50\") +\n  labs(\n    title    = \"Anomalía de temperatura global (1880–2024)\",\n    subtitle = \"Línea azul: dato anual · Línea roja: tendencia\",\n    x        = \"Año\",\n    y        = \"Anomalía (°C)\",\n    caption  = \"Fuente: NASA GISS Surface Temperature Analysis\"\n  ) +\n  theme_minimal()\n\n`geom_smooth()` using formula = 'y ~ x'\n\n\n\n\n\nAnomalías de temperatura global 1880–2024",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Capítulo 2: Visualizaciones con ggplot2</span>"
+    ]
+  },
+  {
+    "objectID": "visualizaciones.html#gráfico-2-mapa-de-calor-por-mes-y-año",
+    "href": "visualizaciones.html#gráfico-2-mapa-de-calor-por-mes-y-año",
+    "title": "2  Capítulo 2: Visualizaciones con ggplot2",
+    "section": "2.3 Gráfico 2 — Mapa de calor por mes y año",
+    "text": "2.3 Gráfico 2 — Mapa de calor por mes y año\n\nclima |&gt;\n  filter(year &gt;= 1950) |&gt;\n  ggplot(aes(x = year, y = factor(mes), fill = anomalia)) +\n  geom_tile() +\n  scale_fill_gradient2(\n    low      = \"#2166AC\",\n    mid      = \"white\",\n    high     = \"#D6604D\",\n    midpoint = 0\n  ) +\n  scale_y_discrete(labels = c(\"Ene\",\"Feb\",\"Mar\",\"Abr\",\"May\",\n                               \"Jun\",\"Jul\",\"Ago\",\"Sep\",\"Oct\",\n                               \"Nov\",\"Dic\")) +\n  labs(\n    title   = \"Anomalías de temperatura por mes (1950–2024)\",\n    x       = \"Año\",\n    y       = NULL,\n    fill    = \"Anomalía (°C)\",\n    caption = \"Fuente: NASA GISS\"\n  ) +\n  theme_minimal()\n\n\n\n\nMapa de calor de anomalías por mes",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Capítulo 2: Visualizaciones con ggplot2</span>"
+    ]
+  },
+  {
+    "objectID": "visualizaciones.html#gráfico-3-comparación-de-décadas",
+    "href": "visualizaciones.html#gráfico-3-comparación-de-décadas",
+    "title": "2  Capítulo 2: Visualizaciones con ggplot2",
+    "section": "2.4 Gráfico 3 — Comparación de décadas",
+    "text": "2.4 Gráfico 3 — Comparación de décadas\n\nclima |&gt;\n  mutate(decada = paste0(floor(year / 10) * 10, \"s\")) |&gt;\n  ggplot(aes(x = anomalia, fill = decada)) +\n  geom_density(alpha = 0.5) +\n  geom_vline(xintercept = 0, linetype = \"dashed\", color = \"gray40\") +\n  labs(\n    title    = \"Distribución de anomalías por década\",\n    subtitle = \"Cada curva representa una década\",\n    x        = \"Anomalía (°C)\",\n    y        = \"Densidad\",\n    fill     = \"Década\",\n    caption  = \"Fuente: NASA GISS\"\n  ) +\n  theme_minimal()\n\n\n\n\nDistribución de anomalías por década",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>Capítulo 2: Visualizaciones con ggplot2</span>"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Analisis del Cambio Climático con R",
+    "section": "",
+    "text": "Bienvenida",
+    "crumbs": [
+      "Bienvenida"
+    ]
+  }
+]
